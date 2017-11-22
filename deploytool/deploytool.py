@@ -68,6 +68,7 @@ def create_client(urls: str):
     try:
         if client.ping().strip() != b'pong':
             raise MarathonError
+        print('Connected to {}'.format(urls))
     except MarathonError:
         print('Could not connect to Marathon in {}'.format(marathonlist))
         sys.exit(1)

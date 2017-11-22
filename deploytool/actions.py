@@ -6,6 +6,7 @@ from typing import Union
 from marathon import MarathonClient, MarathonApp, MarathonHttpError
 from utils.events import wait_for_deployment, poll_deployments_for_app
 import utils.string_mangling as mangling
+from utils import confirm_or_exit
 
 
 def in_place_restart(client: MarathonClient, appid: str):
@@ -29,33 +30,34 @@ def rolling_restart_app(client: MarathonClient, appid: str):
 
 
 def put_app(client: MarathonClient, definition: str, fullrollback: bool) -> str:
-    rollback_order = None
     if os.path.isdir(definition):
-        prompt = input('The path {} is a directory. Deploy applications defined in it?\nType \'YES\''
-                       ' to confirm: '.format(definition))
-        if prompt == 'YES':
-            if fullrollback:
-                print('If you cancel any deployment, all previous applications (although successfully deployed) '
-                      'will be rolled back to their previous states.\nAre you totally sure?')
-                if input('Type \'YES\' to confirm: ') != 'YES':
-                    print('Aborting')
-                    exit(2)
-                rollback_order = []
-            defs = os.listdir(definition)
-            defs.sort()
-            for d in defs:
-                if not d.startswith('#') and os.path.isfile(os.path.join(definition, d)):  # Commented files support
-                    deployed = put_app(client, os.path.join(definition, d), False)
-                    if deployed is False and rollback_order is not None:
-                        #  Initiate full rollback!!
-                        rollback_order.sort(reverse=True)
-                        do_full_rollback(client, rollback_order)
-                    if rollback_order is not None:
-                        rollback_order.append(deployed)
-            return definition
-        else:
-            print("Aborting")
-            exit(2)
+        return _put_apps_group(client, definition, fullrollback)
+        # TODO: Move batch-put to special method
+        # prompt = input('The path {} is a directory. Deploy applications defined in it?\nType \'YES\''
+        #                ' to confirm: '.format(definition))
+        # if prompt == 'YES':
+        #     if fullrollback:
+        #         print('If you cancel any deployment, all previous applications (although successfully deployed) '
+        #               'will be rolled back to their previous states.\nAre you totally sure?')
+        #         if input('Type \'YES\' to confirm: ') != 'YES':
+        #             print('Aborting')
+        #             exit(2)
+        #         rollback_order = []
+        #     defs = os.listdir(definition)
+        #     defs.sort()  # TODO: [BUG] Sorting by string, not number
+        #     for d in defs:
+        #         if not d.startswith('#') and os.path.isfile(os.path.join(definition, d)):  # Commented files support
+        #             deployed = put_app(client, os.path.join(definition, d), False)
+        #             if deployed is False and rollback_order is not None:
+        #                 #  Initiate full rollback!!
+        #                 rollback_order.sort(reverse=True)
+        #                 do_full_rollback(client, rollback_order)
+        #             if rollback_order is not None:
+        #                 rollback_order.append(deployed)
+        #     return definition
+        # else:
+        #     print("Aborting")
+        #     exit(2)
     with open(definition) as f:
         j = json.load(f)
     a = MarathonApp.from_json(j)
@@ -64,6 +66,42 @@ def put_app(client: MarathonClient, definition: str, fullrollback: bool) -> str:
         return _update_application(client, a, definition)
     else:
         return _create_application(client, a, definition)
+
+
+# TODO: In progress
+def _put_apps_group(client: MarathonClient, defs_folder: str, fullrollback: bool) -> str:
+    rollback_order = None
+    confirm_or_exit('The path {} is a directory. Deploy applications defined in it?'.format(defs_folder))
+    # prompt = input('The path {} is a directory. Deploy applications defined in it?\nType \'YES\''
+    #                ' to confirm: '.format(defs_folder))
+    # if prompt == 'YES':
+    if fullrollback:
+        confirm_or_exit('If you cancel any deployment, all previous applications (although successfully deployed) '
+                        'will be rolled back to their previous states.')
+        # print('If you cancel any deployment, all previous applications (although successfully deployed) '
+        #       'will be rolled back to their previous states.\nAre you totally sure?')
+        # if input('Type \'YES\' to confirm: ') != 'YES':
+        #     print('Aborting')
+        #     exit(2)
+        rollback_order = []
+    defs = os.listdir(defs_folder)
+    defs.sort()  # TODO: [BUG] Sorting by string, not number
+    for d in defs:
+        if not d.startswith('#') and os.path.isfile(os.path.join(defs_folder, d)):  # Commented files support
+            deployed = put_app(client, os.path.join(defs_folder, d), False)
+            if deployed is False and rollback_order is not None:
+                #  Initiate full rollback!!
+                rollback_order.sort(reverse=True)
+                do_full_rollback(client, rollback_order)
+            if rollback_order is not None:
+                rollback_order.append(deployed)
+    return defs_folder
+    # else:
+    #     print("Aborting")
+    #     exit(2)
+
+
+# def _
 
 
 def _update_application(client: MarathonClient, app: MarathonApp,

@@ -7,8 +7,10 @@ setup(
     description='CLI tool to manage deployment of applications to Marathon',
     author='Nicolas Villanueva',
     author_email='villanueva.arg@gmail.com',
-    packages=["deploytool/", "deploytool/utils/"],
-    install_requires=['marathon>=0.9.3'],
+    py_modules=['deploytool'],
+    install_requires=[
+        'marathon>=0.9.3'
+    ],
     entry_points={
         'console_scripts': [
             'deploy=deploytool:main'
