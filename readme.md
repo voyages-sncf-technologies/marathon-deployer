@@ -50,3 +50,4 @@ If you do *not* force the cancellation (let the rollback deployment flow), the r
 - BUG: Ordering is broken with 10> apps (ordering as string, so, for example, `19` goes before `2`)
 - Standalone building goes into Makefile
 - Get the .spec and setuptools stuff right for fucking once (and publish in PyPI)
+- Maybe migrate to Click?

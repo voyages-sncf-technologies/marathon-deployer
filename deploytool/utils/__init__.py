@@ -1,7 +1,7 @@
 import sys
 
 
-def confirm_or_exit(message: str):
+def roadblock(message: str):
     assert isinstance(message, str)
     message += "\nType \'YES\' to confirm: "
     try:
