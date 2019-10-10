@@ -5,7 +5,7 @@
 ## Set up
 
 ### Development
-- Requires Python 3.6 or higher
+- Requires Python 3.7 or higher
 - Dependencies in `requirements.txt`: `pip3 install -r requirements.txt`
 - Use of virtualenv is recommended as always
 - Highly recommended to use MiniMesos for local testing (feel free to use the minimesosFile)
@@ -41,7 +41,7 @@ If you do *not* force the cancellation (let the rollback deployment flow), the r
 
 ### Rollback workflow
 
-![alt text](Deploytool-flow.png "Deployment flow")
+![alt text](deployment-flow.png "Deployment flow")
 
 ## Pypi publishing
 
@@ -60,4 +60,3 @@ To releasing a new version, with a valid `~/.pypirc` configured for authenticati
 - BUG: --list blows up when there are non-Docker apps in Marathon
 - BUG: Ordering is broken with 10> apps (ordering as string, so, for example, `19` goes before `2`)
 - Standalone building goes into Makefile
-- Get the .spec and setuptools stuff right for fucking once (and publish in PyPI)

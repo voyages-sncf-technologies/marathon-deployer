@@ -1,8 +1,0 @@
-.*
-_*
-!_*.py
-deploy-tool.legacy.py
-*.sh
-MANIFEST*
-setup.py
-venv/
