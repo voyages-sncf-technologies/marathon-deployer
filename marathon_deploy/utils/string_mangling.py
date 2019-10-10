@@ -18,8 +18,7 @@ def split_image_tag(image: str) -> Tuple[str, str]:
     parts = image.split(':')
     if len(parts) == 1:
         return image, 'latest'
-    else:
-        return parts[0], parts[1]
+    return parts[0], parts[1]
 
 
 def rebuild_image_name(registry: str, image: str, tag: str) -> str:

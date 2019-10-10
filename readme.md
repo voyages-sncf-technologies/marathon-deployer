@@ -1,3 +1,5 @@
+[![Travis build status](https://travis-ci.org/nicovillanueva/marathon-deployer.svg?branch=master)](https://travis-ci.org/nicovillanueva/marathon-deployer)
+
 # Marathon deployment tool
 
 ## Set up
@@ -40,6 +42,15 @@ If you do *not* force the cancellation (let the rollback deployment flow), the r
 ### Rollback workflow
 
 ![alt text](Deploytool-flow.png "Deployment flow")
+
+## Pypi publishing
+
+To releasing a new version, with a valid `~/.pypirc` configured for authentication:
+
+1. edit the version in `marathon_deploy/version.py`
+2. `python setup.py sdist`
+3. `pip install twine && twine upload dist/*`
+4. `git commit -am "Version $(cat marathon_deploy/version.py)" && git tag $(cat marathon_deploy/version.py) && git push && git push --tags`
 
 ## TODO
 - Verify if the target app is a Docker container when using `--tag`

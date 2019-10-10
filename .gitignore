@@ -1,7 +1,3 @@
-.DS_Store
-.*/
-_*
-venv/
-!__*__.py
-dist_*
-*.spec
+/dist/
+*.pyc
+*.egg-info/

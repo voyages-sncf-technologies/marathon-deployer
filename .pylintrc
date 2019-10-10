@@ -1,0 +1,6 @@
+[MESSAGES CONTROL]
+disable = fixme, import-error, missing-docstring, wrong-import-order
+max-line-length = 125
+
+[SIMILARITIES]
+min-similarity-lines=5
