@@ -16,24 +16,24 @@ def wait_for_event(client: MarathonClient, event: str, deployment_id: str):
 def wait_for_deployment(client: MarathonClient, deployment: Union[MarathonDeployment, dict]) -> bool:
     def show_affected_apps(target_deploy):
         for aff in target_deploy.affected_apps:
-            print('- {}: {}/ui/#/apps/{}/debug'.format(aff, srv, aff.replace('/', '%2F')))
+            print('- {}: {}ui/#/apps/{}/debug'.format(aff, srv, aff.replace('/', '%2F')))
     target = None
-    if type(deployment) == dict:
-        if len(client.list_deployments()) == 0:
+    if isinstance(deployment, dict):
+        if not client.list_deployments():
             print('No deployments in progress. Grace time of 3 seconds.')
             time.sleep(3)
-        for e in client.list_deployments():
-            if deployment.get('deploymentId') == e.id:
-                target = e
+        for current_deployment in client.list_deployments():
+            if deployment.get('deploymentId') == current_deployment.id:
+                target = current_deployment
     else:
         target = deployment
     if target is None:
         print('Deployment {} not found. Assuming complete.'.format(deployment))
-        return True
+        return False
     if target not in client.list_deployments():
         print('Not found yet. Grace time of 3 seconds.')
         time.sleep(3)
-    srv = client.servers if type(client.servers) == str else client.servers[0]
+    srv = client.servers if isinstance(client.servers, str) else client.servers[0]
     print('Watching deployment {}'.format(target.id))
     print('Affected apps:')
     show_affected_apps(target)
@@ -60,9 +60,9 @@ def wait_for_deployment(client: MarathonClient, deployment: Union[MarathonDeploy
                 client.delete_deployment(target.id, force=True)
                 print('Deployment deleted. Check status of applications:')
                 show_affected_apps(target)
-                exit(2)
-            d = client.delete_deployment(target.id, force=False)
-            print('Rollback deployment launched: {}'.format(d.get('deploymentId')))
+                sys.exit(2)
+            deployment = client.delete_deployment(target.id, force=False)
+            print('Rollback deployment launched: {}'.format(deployment.get('deploymentId')))
             # Do not wait for this one. It must not be cancelled.
             # TODO: Review options?
             return False
@@ -70,7 +70,7 @@ def wait_for_deployment(client: MarathonClient, deployment: Union[MarathonDeploy
         print('\nDeployment monitoring aborted. Check status in:')
         print('- All deployments: {}/ui/#/deployments'.format(srv))
         show_affected_apps(target)
-        exit(1)
+        sys.exit(1)
     print('Deployment {} complete.'.format(target.id))
     return True
 
@@ -81,14 +81,13 @@ def poll_deployments_for_app(client: MarathonClient, app: MarathonApp) -> bool:
     try:
         while True:
             deployments = client.list_deployments()
-            if len(deployments) == 0:
+            if not deployments:
                 print('No deployments active. Assuming complete.')
                 return True
-            else:
-                for deploy in deployments:
-                    if appid not in deploy.affected_apps:
-                        print("No deployment involving {}. Assuming complete.".format(appid))
-                        return True
+            for deploy in deployments:
+                if appid not in deploy.affected_apps:
+                    print("No deployment involving {}. Assuming complete.".format(appid))
+                    return True
             time.sleep(0.1)
     except KeyboardInterrupt:
         if input('Really abort creation?\nType \'YES\' to continue: ') == 'YES':
