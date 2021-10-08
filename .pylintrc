@@ -1,5 +1,5 @@
 [MESSAGES CONTROL]
-disable = fixme, import-error, missing-docstring, wrong-import-order
+disable = consider-using-f-string, fixme, import-error, missing-docstring, wrong-import-order
 max-line-length = 125
 
 [SIMILARITIES]

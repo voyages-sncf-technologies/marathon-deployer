@@ -29,7 +29,7 @@ def rolling_restart_app(client: MarathonClient, appid: str):
     wait_for_deployment(client, deployment)
 
 
-def put_app(client: MarathonClient, definition_path: str, fullrollback: bool, force_restart: bool) -> str:
+def put_app(client: MarathonClient, definition_path: str, fullrollback: bool, force_restart: bool = False) -> str:
     rollback_order = None
     if os.path.isdir(definition_path):
         prompt = input('The path {} is a directory. Deploy applications defined in it?\nType \'YES\''
@@ -47,7 +47,7 @@ def put_app(client: MarathonClient, definition_path: str, fullrollback: bool, fo
         for definition_filename in sorted(os.listdir(definition_path)):
             definition_filepath = os.path.join(definition_path, definition_filename)
             if not definition_filename.startswith('#') and os.path.isfile(definition_filepath):  # Commented files support
-                deployed = put_app(client, definition_filepath, False)
+                deployed = put_app(client, definition_filepath, False, force_restart=force_restart)
                 if deployed is False and rollback_order is not None:
                     #  Initiate full rollback!!
                     rollback_order.sort(reverse=True)
@@ -55,7 +55,7 @@ def put_app(client: MarathonClient, definition_path: str, fullrollback: bool, fo
                 if rollback_order is not None:
                     rollback_order.append(deployed)
         return definition_path
-    with open(definition_path) as json_file:
+    with open(definition_path, encoding='utf8') as json_file:
         app = MarathonApp.from_json(json.load(json_file))
     appid = app.id if app.id.startswith('/') else '/' + app.id
     if any(filter(lambda x: x.id == appid, client.list_apps())):
@@ -73,7 +73,7 @@ def _update_application(client: MarathonClient, app: MarathonApp,
         backup = client.get_app(app.id).to_json()
         backup_path = './backups/{}_{}.json'.format(mangling.appid_to_filename(app.id),
                                                     time.strftime("%Y-%m-%d_%H:%M:%S"))
-        with open(backup_path, 'w') as backup_file:
+        with open(backup_path, 'w', encoding='utf8') as backup_file:
             backup_file.write(backup)
             print('\nBacked app into: {}'.format(backup_path))
     else:
@@ -114,7 +114,7 @@ def do_full_rollback(client: MarathonClient, rollback: list):
     print('------------------')
     for each in rollback:
         if os.path.isfile(each):
-            with open(each) as json_file:
+            with open(each, encoding='utf8') as json_file:
                 app = MarathonApp.from_json(json.load(json_file))
             _update_application(client, app, each, False)
         else:
