@@ -1,4 +1,4 @@
-[![Travis build status](https://travis-ci.org/nicovillanueva/marathon-deployer.svg?branch=master)](https://travis-ci.org/nicovillanueva/marathon-deployer)
+[![build status](https://github.com/voyages-sncf-technologies/marathon-deployer/workflows/build/badge.svg)](https://github.com/voyages-sncf-technologies/marathon-deployer/actions?query=branch%3Amaster)
 
 # Marathon deployment tool
 

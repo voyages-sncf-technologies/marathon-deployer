@@ -20,6 +20,7 @@ def parse_arguments():
     args.add_argument('--fullrollback', action='store_true', help='In case of deployment cancellation, '
                                                                   'rollback all apps. (Default: disabled)'
                                                                   '\nSee README.md for more info.')
+    args.add_argument('--force-restart', action='store_true', help='Force restart in case app is locked.')
     args.add_argument('--tag', type=str,
                       help='Docker tag to update the app to; it only updates the tag (Requires --appid)')
     args.add_argument('--restart', action='store_true',

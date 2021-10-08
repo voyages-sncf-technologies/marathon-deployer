@@ -31,7 +31,7 @@ def main():  # pylint: disable=too-many-branches
         sys.exit(0)
 
     elif args.put:
-        actions.put_app(client, args.put, args.fullrollback)
+        actions.put_app(client, args.put, args.fullrollback, args.force_restart)
 
     elif args.tag and check_appid(args.appid):
         actions.update_app_tag(client, args.appid, args.tag)

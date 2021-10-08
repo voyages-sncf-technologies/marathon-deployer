@@ -29,7 +29,7 @@ def rolling_restart_app(client: MarathonClient, appid: str):
     wait_for_deployment(client, deployment)
 
 
-def put_app(client: MarathonClient, definition_path: str, fullrollback: bool) -> str:
+def put_app(client: MarathonClient, definition_path: str, fullrollback: bool, force_restart: bool) -> str:
     rollback_order = None
     if os.path.isdir(definition_path):
         prompt = input('The path {} is a directory. Deploy applications defined in it?\nType \'YES\''
@@ -59,12 +59,13 @@ def put_app(client: MarathonClient, definition_path: str, fullrollback: bool) ->
         app = MarathonApp.from_json(json.load(json_file))
     appid = app.id if app.id.startswith('/') else '/' + app.id
     if any(filter(lambda x: x.id == appid, client.list_apps())):
-        return _update_application(client, app, definition_path)
-    return _create_application(client, app, definition_path)
+        return _update_application(client, app, definition_path, force_restart=force_restart)
+    return _create_application(client, app, definition_path, force_restart=force_restart)
 
 
 def _update_application(client: MarathonClient, app: MarathonApp,
-                        definition_path: str, do_backup: bool = False) -> Union[str, bool]:
+                        definition_path: str, do_backup: bool = False,
+                        force_restart: bool = False) -> Union[str, bool]:
     if do_backup:
         if not os.path.isdir('./backups'):
             os.mkdir('./backups/')
@@ -83,11 +84,12 @@ def _update_application(client: MarathonClient, app: MarathonApp,
     # Return the deployed backup file to build rollback order, if necessary
     # or False if a user-initiated rollback completed successfully
     if not wait_for_deployment(client, deployment):
-        client.restart_app(app.id)
+        client.restart_app(app.id, force=force_restart)
     return False if not wait_for_deployment(client, deployment) else backup_path
 
 
-def _create_application(client: MarathonClient, app: MarathonApp, definition_path: str) -> Union[str, bool]:
+def _create_application(client: MarathonClient, app: MarathonApp, definition_path: str,
+                        force_restart: bool = False) -> Union[str, bool]:
     print('\nCreating app: {} (from: {})'.format(app.id, definition_path))
     try:
         app = client.create_app(app.id, app)
@@ -98,7 +100,7 @@ def _create_application(client: MarathonClient, app: MarathonApp, definition_pat
         if error.status_code == 409:
             # If somehow didn't come up before...
             print('Application already exists. Updating...')
-            return _update_application(client, app, definition_path)
+            return _update_application(client, app, definition_path, force_restart=force_restart)
         raise error
     # TODO: Migrate to `wait_for_deployment`
     # Return the deployed appid to build rollback order, if necessary
