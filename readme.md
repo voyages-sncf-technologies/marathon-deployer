@@ -47,10 +47,10 @@ If you do *not* force the cancellation (let the rollback deployment flow), the r
 
 To releasing a new version, with a valid `~/.pypirc` configured for authentication:
 
-1. edit the version in `marathon_deploy/version.py`
+1. edit the version in `marathon_deploy/version.txt`
 2. `python setup.py sdist`
 3. `pip install twine && twine upload dist/*`
-4. `git commit -am "Version $(cat marathon_deploy/version.py)" && git tag $(cat marathon_deploy/version.py) && git push && git push --tags`
+4. `git commit -am "Version $(cat marathon_deploy/version.txt)" && git tag $(cat marathon_deploy/version.txt) && git push && git push --tags`
 
 ## TODO
 - Verify if the target app is a Docker container when using `--tag`

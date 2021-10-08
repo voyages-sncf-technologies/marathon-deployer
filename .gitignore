@@ -3,4 +3,3 @@
 *.egg-info/
 __pycache__/
 venv/
-/marathon_deploy/version.txt

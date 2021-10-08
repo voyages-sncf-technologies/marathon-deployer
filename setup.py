@@ -4,8 +4,8 @@ from setuptools import setup
 ROOT = os.path.dirname(__file__)
 
 def get_version():
-    version = open(os.path.join(ROOT, 'marathon_deploy', 'version.py')).read()
-    return version
+    with open(os.path.join(ROOT, 'marathon_deploy', 'version.txt')) as version_file:
+        return version_file.read().strip()
 
 setup(
     name='marathon-deploy',

@@ -2,7 +2,7 @@
 
 import sys
 import os
-import marathon_deploy.utils import actions
+from marathon_deploy.utils import actions
 from marathon_deploy.utils.common import parse_arguments, check_appid,\
     create_client
 
@@ -25,7 +25,7 @@ def main():  # pylint: disable=too-many-branches
 
     if args.version:
         version_filepath = os.path.join(os.path.dirname(__file__),
-                                        'marathon_deploy', 'version.py')
+                                        'marathon_deploy', 'version.txt')
         with open(version_filepath, encoding='utf8') as version_file:
             print(version_file.read())
         sys.exit(0)
